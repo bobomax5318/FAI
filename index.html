@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FAI 游离睾酮指数计算器</title>
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px; /* 限制最大宽度，模拟手机体验 */
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #07c160;
+        }
+
+        .input-field {
+            flex: 1;
+            height: 44px;
+            padding: 0 12px;
+            font-size: 16px;
+            color: #333;
+            background: transparent;
+            border: none;
+            outline: none;
+            width: 100%; /* Fix for flex sizing */
+        }
+
+        .unit-select {
+            height: 44px;
+            background-color: #eee;
+            border: none;
+            border-left: 1px solid #e0e0e0;
+            padding: 0 10px;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+            appearance: none; /* Remove default arrow */
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 12px;
+            padding-right: 25px;
+            min-width: 85px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            height: 48px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-calc {
+            flex: 2;
+            background-color: #07c160;
+            color: white;
+        }
+
+        .btn-reset {
+            flex: 1;
+            background-color: #f0f0f0;
+            color: #666;
+        }
+
+        .result-card {
+            background: #e7f9ef;
+            border: 1px solid #07c160;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            display: none; /* 默认隐藏 */
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: #06ad56;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .result-value-group {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #07c160;
+            margin-right: 5px;
+        }
+
+        .result-unit {
+            font-size: 18px;
+            color: #07c160;
+        }
+
+        .result-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .error-message {
+            color: #ff4d4f;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .footer-link {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .footer-link a {
+            color: #07c160;
+            text-decoration: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <span class="title">FAI 计算器</span>
+        <span class="subtitle">Web版 · 游离睾酮指数计算</span>
+    </div>
+
+    <div class="card">
+        <!-- TT Input -->
+        <div class="input-group">
+            <label class="label">总睾酮 (TT)</label>
+            <div class="input-wrapper">
+                <input type="number" id="ttInput" class="input-field" placeholder="请输入数值" step="any">
+                <select id="ttUnit" class="unit-select">
+                    <option value="0">nmol/L</option>
+                    <option value="1">ug/L</option>
+                    <option value="2">ng/mL</option>
+                    <option value="3">ng/dL</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- SHBG Input -->
+        <div class="input-group">
+            <label class="label">SHBG 浓度</label>
+            <div class="input-wrapper">
+                <input type="number" id="shbgInput" class="input-field" placeholder="请输入数值" step="any">
+                <select id="shbgUnit" class="unit-select">
+                    <option value="0">nmol/L</option>
+                    <option value="1">ug/L</option>
+                    <option value="2">ng/mL</option>
+                    <option value="3">ng/dL</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="errorMsg" class="error-message"></div>
+
+        <div class="button-group">
+            <button class="btn btn-calc" onclick="calculateFAI()">计算 FAI</button>
+            <button class="btn btn-reset" onclick="resetForm()">重置</button>
+        </div>
+    </div>
+
+    <!-- Result Area -->
+    <div id="resultCard" class="result-card">
+        <span class="result-label">计算结果 (FAI)</span>
+        <div class="result-value-group">
+            <span id="resultValue" class="result-value">--</span>
+            <span class="result-unit">%</span>
+        </div>
+        <div class="result-note">
+            <div>TT: <span id="ttNmol">--</span> nmol/L</div>
+            <div>SHBG: <span id="shbgNmol">--</span> nmol/L</div>
+        </div>
+    </div>
+    
+    <div class="footer-link">
+        <!-- 这个链接之后可以替换成你自己的 Github 地址 -->
+        托管于 GitHub Pages
+    </div>
+</div>
+
+<script>
+    function calculateFAI() {
+        // 获取元素
+        const ttInput = document.getElementById('ttInput');
+        const shbgInput = document.getElementById('shbgInput');
+        const ttUnit = document.getElementById('ttUnit');
+        const shbgUnit = document.getElementById('shbgUnit');
+        const resultCard = document.getElementById('resultCard');
+        const errorMsg = document.getElementById('errorMsg');
+
+        // 获取数值
+        const ttVal = parseFloat(ttInput.value);
+        const shbgVal = parseFloat(shbgInput.value);
+        const ttUnitIdx = parseInt(ttUnit.value);
+        const shbgUnitIdx = parseInt(shbgUnit.value);
+
+        // 隐藏之前的结果和错误
+        resultCard.style.display = 'none';
+        errorMsg.style.display = 'none';
+
+        // 验证
+        if (!ttVal || ttVal <= 0) {
+            showError('请输入有效的总睾酮(TT)数值');
+            return;
+        }
+        if (!shbgVal || shbgVal <= 0) {
+            showError('请输入有效的 SHBG 数值');
+            return;
+        }
+
+        // 1. TT 换算 -> nmol/L
+        let tt_nmol = ttVal;
+        switch (ttUnitIdx) {
+            case 0: // nmol/L
+                tt_nmol = ttVal;
+                break;
+            case 1: // ug/L (1 ug/L = 3.467 nmol/L)
+                tt_nmol = ttVal * 3.467;
+                break;
+            case 2: // ng/mL (同上)
+                tt_nmol = ttVal * 3.467;
+                break;
+            case 3: // ng/dL (1 ng/dL = 0.0347 nmol/L)
+                tt_nmol = ttVal * 0.0347;
+                break;
+        }
+
+        // 2. SHBG 换算 -> nmol/L
+        let shbg_nmol = shbgVal;
+        switch (shbgUnitIdx) {
+            case 0: // nmol/L
+                shbg_nmol = shbgVal;
+                break;
+            case 1: // ug/L (1 ug/L ≈ 0.01053 nmol/L)
+                shbg_nmol = shbgVal * 0.01053;
+                break;
+            case 2: // ng/mL (同上)
+                shbg_nmol = shbgVal * 0.01053;
+                break;
+            case 3: // ng/dL (1 ng/dL ≈ 0.001053 nmol/L)
+                shbg_nmol = shbgVal * 0.001053;
+                break;
+        }
+
+        // 3. 计算 FAI
+        const fai = (tt_nmol / shbg_nmol) * 100;
+
+        // 4. 显示结果
+        document.getElementById('resultValue').innerText = fai.toFixed(2);
+        document.getElementById('ttNmol').innerText = tt_nmol.toFixed(2);
+        document.getElementById('shbgNmol').innerText = shbg_nmol.toFixed(2);
+        
+        resultCard.style.display = 'block';
+    }
+
+    function resetForm() {
+        document.getElementById('ttInput').value = '';
+        document.getElementById('shbgInput').value = '';
+        document.getElementById('ttUnit').value = '0';
+        document.getElementById('shbgUnit').value = '0';
+        document.getElementById('resultCard').style.display = 'none';
+        document.getElementById('errorMsg').style.display = 'none';
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('errorMsg');
+        el.innerText = msg;
+        el.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
