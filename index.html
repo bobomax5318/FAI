@@ -190,17 +190,7 @@
             display: none;
         }
 
-        .footer-link {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 12px;
-            color: #999;
-        }
-        
-        .footer-link a {
-            color: #07c160;
-            text-decoration: none;
-        }
+        /* 已删除 .footer-link 样式，保持代码整洁 */
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -225,7 +215,7 @@
                 <select id="ttUnit" class="unit-select">
                     <option value="0">nmol/L</option>
                     <option value="1">ug/L</option>
-                    <option value="2">ng/mL</option>
+                    <option value="2" selected>ng/mL</option> <!-- 默认设置为 ng/mL -->
                     <option value="3">ng/dL</option>
                 </select>
             </div>
@@ -233,11 +223,11 @@
 
         <!-- SHBG Input -->
         <div class="input-group">
-            <label class="label">SHBG 浓度</label>
+            <label class="label">性激素结合球蛋白（SHBG）</label>
             <div class="input-wrapper">
                 <input type="number" id="shbgInput" class="input-field" placeholder="请输入数值" step="any">
                 <select id="shbgUnit" class="unit-select">
-                    <option value="0">nmol/L</option>
+                    <option value="0" selected>nmol/L</option> <!-- 显式设置为默认 -->
                     <option value="1">ug/L</option>
                     <option value="2">ng/mL</option>
                     <option value="3">ng/dL</option>
@@ -266,10 +256,7 @@
         </div>
     </div>
     
-    <div class="footer-link">
-        <!-- 这个链接之后可以替换成你自己的 Github 地址 -->
-        托管于 GitHub Pages
-    </div>
+    <!-- 底部链接已移除 -->
 </div>
 
 <script>
@@ -350,8 +337,13 @@
     function resetForm() {
         document.getElementById('ttInput').value = '';
         document.getElementById('shbgInput').value = '';
-        document.getElementById('ttUnit').value = '0';
+        
+        // 重置时，TT 恢复到 ng/mL (value="2")
+        document.getElementById('ttUnit').value = '2'; 
+        
+        // 重置时，SHBG 恢复到 nmol/L (value="0")
         document.getElementById('shbgUnit').value = '0';
+        
         document.getElementById('resultCard').style.display = 'none';
         document.getElementById('errorMsg').style.display = 'none';
     }
